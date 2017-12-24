@@ -3,19 +3,16 @@ Name:
 Author: 
 Description: 
 --%>
-<%@ Template Language="C#" TargetLanguage="Text" %>
-<%@ Property Name="SampleStringProperty" Default="SomeValue" Type="System.String" %>
-<%@ Property Name="SampleBooleanProperty" Default="True" Type="System.Boolean" %>
-My static content here.
-My dynamic content here: "<%= SampleStringProperty %>"
-Call a script method: <%= SampleMethod() %>
-<% if (SampleBooleanProperty) { %>
-My conditional content here.
-<% } %>
-<script runat="template">
-// My methods here.
-public string SampleMethod()
-{
-  return "Method output.";
+<%@ Template Language="C#" TargetLanguage="Java" %>
+<%@ Property Name="PackageName" Default="xiaomin.demo" Type="System.String" %>
+package <%=PackageName%>;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args){
+        SpringApplication.run(Application.class,args);
+    }
 }
-</script>

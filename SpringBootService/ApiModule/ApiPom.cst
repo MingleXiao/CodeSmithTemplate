@@ -17,11 +17,11 @@ Description:
         <version><%=Version%></version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId><%=ArtifactId%>-domain</artifactId>
+    <artifactId><%=ArtifactId%>-api</artifactId>
     <dependencies>
         <dependency>
             <groupId><%=GroupId%></groupId>
-            <artifactId><%=ArtifactId%>-contract</artifactId>
+            <artifactId><%=ArtifactId%>-domain</artifactId>
             <version><%=Version%></version>
         </dependency>
     </dependencies>

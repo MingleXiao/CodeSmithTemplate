@@ -20,7 +20,10 @@ Description:
 <%@ Import NameSpace="System.Xml.XPath" %> 
 
 <%@ Register Template="ParentPom.cst" Name="ParentPomTemplate" %>
+<%@ Register Template="ApiModule/ApiPom.cst" Name="ApiPomTemplate" %>
 <%@ Register Template="ApiModule/ApiApplication.cst" Name="ApiAppTemplate" %>
+<%@ Register Template="DomainModule/DomainPom.cst" Name="DomainTemplate" %>
+<%@ Register Template="ContractModule/ContractPom.cst" Name="ContractPomTemplate" %>
 <%@ Property Name="GroupId" Default="xiaomin.demo" Type="System.String" Description="项目GroupId" %>
 <%@ Property Name="ArtifactId" Default="demo" Type="System.String" Description="项目ArtifactId" %>
 <%@ Property Name="Version" Default="1.0" Type="System.String" Description="项目版本" %>
@@ -30,26 +33,13 @@ Description:
 <%= CreateProject()%>
 <script runat="template">
 public string CreateProject(){
-    string apiModuleFolder=String.Format("\{0}-api",this.ArtifactId);
-    string contractModuleFolder=String.Format("\{0}-contract",this.ArtifactId);
-    string domainModuleFolder=String.Format("\{0}-domain",this.ArtifactId);
-    string adminserviceModuleFolder=String.Format("\{0}-adminservice",this.ArtifactId);
+    string apiModuleFolder=String.Format(@"\{0}-api",this.ArtifactId);
+    string contractModuleFolder=String.Format(@"\{0}-contract",this.ArtifactId);
+    string domainModuleFolder=String.Format(@"\{0}-domain",this.ArtifactId);
+    string adminserviceModuleFolder=String.Format(@"\{0}-adminservice",this.ArtifactId);
     
-    string [] folders={
-        @"\src",
-        @"\src\main",
-        @"\src\main\java",
-        @"\src\main\resources",
-        @"\src\test",
-        @"\src\test\java"
-    };
-    //创建目录
-    var dir=Directory.CreateDirectory(this.OutPut+this.ArtifactId);
-    
-    
-    //创建子目录
-    
-    
+    //创建根目录
+    var rootDir=Directory.CreateDirectory(this.OutPut+this.ArtifactId);
     
     //创建ParentPom文件
     CodeTemplate pomtemplate = new ParentPomTemplate();　
@@ -58,23 +48,94 @@ public string CreateProject(){
     pomtemplate.SetProperty("Version",this.Version);
     pomtemplate.SetProperty("SpringBootVersion",this.SpringBootVersion);
     String result=pomtemplate.RenderToString();
-    pomtemplate.RenderToFile(dir.FullName+@"\pom.xml",true);
+    pomtemplate.RenderToFile(rootDir.FullName+@"\pom.xml",true);
     Debug.WriteLine(result);
     
-    //创建基本目录
+    //创建子目录
+    
+    CreateContractModule(rootDir.FullName+contractModuleFolder);
+    CreateApiModule(rootDir.FullName+apiModuleFolder);
+    CreateDomainModule(rootDir.FullName+domainModuleFolder);
+    CreateCommonFolders(rootDir.FullName+adminserviceModuleFolder);
+    
+
+    
+   
+   
+
+  
+    
+    return "成功";
+}
+
+
+public string CreateCommonFolders(String basePath){
+    string [] folders={
+        @"\src",
+        @"\src\main",
+        @"\src\main\java",
+        @"\src\main\resources",
+        @"\src\test",
+        @"\src\test\java"
+    };
+    
+        //创建基本目录
     foreach(String folder in folders){
-        Debug.WriteLine(dir.FullName+folder);
-        Directory.CreateDirectory(dir.FullName+folder);
+        Debug.WriteLine(basePath+folder);
+        Directory.CreateDirectory(basePath+folder);
     }
     
     //创建包目录
     String[] subfolders=this.PackageName.Split(new Char[]{'.'});
-    String baseFolderPath=dir.FullName+@"\src\main\java";
+    String baseFolderPath=basePath+@"\src\main\java";
     
     foreach(String folder in subfolders){
         baseFolderPath+=@"\"+folder;
         Directory.CreateDirectory(baseFolderPath);
     }
+    
+    return baseFolderPath;
+}
+
+public void CreateContractModule(String basePath){
+    //创建基本目录
+    CreateCommonFolders(basePath);
+    //创建Pom文件
+    CodeTemplate pomtemplate = new ContractPomTemplate();　
+    pomtemplate.SetProperty("GroupId",this.GroupId);
+    pomtemplate.SetProperty("ArtifactId",this.ArtifactId);
+    pomtemplate.SetProperty("Version",this.Version);
+    String result=pomtemplate.RenderToString();
+    pomtemplate.RenderToFile(basePath+@"\pom.xml",true);
+    Debug.WriteLine(result);
+}
+
+public void CreateDomainModule(String basePath){
+     //创建基本目录
+    string basePackageFolder=CreateCommonFolders(basePath);
+    
+    //创建Pom文件
+    CodeTemplate pomtemplate = new DomainTemplate();　
+    pomtemplate.SetProperty("GroupId",this.GroupId);
+    pomtemplate.SetProperty("ArtifactId",this.ArtifactId);
+    pomtemplate.SetProperty("Version",this.Version);
+    String result=pomtemplate.RenderToString();
+    pomtemplate.RenderToFile(basePath+@"\pom.xml",true);
+    Debug.WriteLine(result);
+}
+
+public void CreateApiModule(String basePath){
+    //创建基本目录
+    string basePackageFolder=CreateCommonFolders(basePath);
+    
+    //创建Pom文件
+    CodeTemplate pomtemplate = new ApiPomTemplate();　
+    pomtemplate.SetProperty("GroupId",this.GroupId);
+    pomtemplate.SetProperty("ArtifactId",this.ArtifactId);
+    pomtemplate.SetProperty("Version",this.Version);
+    String result=pomtemplate.RenderToString();
+    pomtemplate.RenderToFile(basePath+@"\pom.xml",true);
+    Debug.WriteLine(result);
     
     //创建入口Application类
     CodeTemplate appTemplate = new ApiAppTemplate();　
@@ -85,33 +146,14 @@ public string CreateProject(){
     String appText=appTemplate.RenderToString();
     var utf8WithoutBom = new System.Text.UTF8Encoding(false);
 
-    using (var sink = new StreamWriter(baseFolderPath+@"\Application.java", false, utf8WithoutBom))
+    using (var sink = new StreamWriter(basePackageFolder+@"\Application.java", false, utf8WithoutBom))
     {
         sink.WriteLine(appText);
     }
-    Debug.WriteLine(result);
    
-
-  
-    
-    return "成功";
 }
 
-
-public string CreateCommonFolders(String path){
-    
-}
-
-public string CreateContractModule(String path){
-}
-
-public string CreateDomainModule(String path){
-}
-
-public string CreateApiModule(String path){
-}
-
-public string CreateAdminServiceModule(String path){
+public void CreateAdminServiceModule(String path){
 }
 // My methods here.
 public string SampleMethod()

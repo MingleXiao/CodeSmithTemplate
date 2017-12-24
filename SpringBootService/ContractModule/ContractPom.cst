@@ -3,19 +3,19 @@ Name:
 Author: 
 Description: 
 --%>
-<%@ Template Language="C#" TargetLanguage="Text" %>
-<%@ Property Name="SampleStringProperty" Default="SomeValue" Type="System.String" %>
-<%@ Property Name="SampleBooleanProperty" Default="True" Type="System.Boolean" %>
-My static content here.
-My dynamic content here: "<%= SampleStringProperty %>"
-Call a script method: <%= SampleMethod() %>
-<% if (SampleBooleanProperty) { %>
-My conditional content here.
-<% } %>
-<script runat="template">
-// My methods here.
-public string SampleMethod()
-{
-  return "Method output.";
-}
-</script>
+<%@ Template Language="C#" TargetLanguage="XML" %>
+<%@ Property Name="GroupId" Default="xiaomin.demo" Type="System.String" Description="项目GroupId" %>
+<%@ Property Name="ArtifactId" Default="demo" Type="System.String" Description="项目ArtifactId" %>
+<%@ Property Name="Version" Default="1.0" Type="System.String" Description="项目版本" %>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId><%=ArtifactId%></artifactId>
+        <groupId><%=GroupId%></groupId>
+        <version><%=Version%></version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId><%=ArtifactId%>-contract</artifactId>
+</project>

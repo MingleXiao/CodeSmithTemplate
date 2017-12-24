@@ -1,0 +1,94 @@
+﻿<%-- 
+Name:
+Author: 
+Description: 
+--%>
+<%@ Template Language="C#" TargetLanguage="Text" Debug="True" %>
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Assembly Name="System.Design" %>
+<%@ Assembly Name="System.DirectoryServices" %>
+<%@ Assembly Name="System.Web" %>
+<%@ Assembly Name="System.Xml" %>
+
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Import NameSpace="System.IO" %>
+<%@ Import NameSpace="System.Text" %>
+<%@ Import NameSpace="System.Text.RegularExpressions" %>
+<%@ Import NameSpace="System.Diagnostics" %>
+<%@ Import NameSpace="System.Xml" %>
+<%@ Import NameSpace="System.Xml.Xsl" %>
+<%@ Import NameSpace="System.Xml.XPath" %> 
+
+<%@ Register Template="Pom.cst" Name="PomTemplate" %>
+<%@ Register Template="Application.cst" Name="AppTemplate" %>
+<%@ Property Name="GroupId" Default="xiaomin.demo" Type="System.String" Description="项目GroupId" %>
+<%@ Property Name="ArtifactId" Default="demo" Type="System.String" Description="项目ArtifactId" %>
+<%@ Property Name="Version" Default="1.0" Type="System.String" Description="项目版本" %>
+<%@ Property Name="SpringBootVersion" Default="1.5.9.RELEASE" Type="System.String" Description="Spring Boot版本" %>
+<%@ Property Name="PackageName" Default="xiaomin.demo" Type="System.String" %>
+<%@ Property Name="OutPut" Default="D:" Type="System.String" %>
+<%= CreateProject()%>
+<script runat="template">
+public string CreateProject(){
+    string [] folders={
+        @"\src",
+        @"\src\main",
+        @"\src\main\java",
+        @"\src\main\resources",
+        @"\src\test",
+        @"\src\test\java"
+    };
+    //创建目录
+    var dir=Directory.CreateDirectory(this.OutPut+this.ArtifactId);
+    
+    //创建ParentPom文件
+    CodeTemplate pomtemplate = new PomTemplate();　
+    pomtemplate.SetProperty("GroupId",this.GroupId);
+    pomtemplate.SetProperty("ArtifactId",this.ArtifactId);
+    pomtemplate.SetProperty("Version",this.Version);
+    pomtemplate.SetProperty("SpringBootVersion",this.SpringBootVersion);
+    String result=pomtemplate.RenderToString();
+    pomtemplate.RenderToFile(dir.FullName+@"\pom.xml",true);
+    Debug.WriteLine(result);
+    
+    //创建基本目录
+    foreach(String folder in folders){
+        Debug.WriteLine(dir.FullName+folder);
+        Directory.CreateDirectory(dir.FullName+folder);
+    }
+    
+    //创建包目录
+    String[] subfolders=this.PackageName.Split(new Char[]{'.'});
+    String baseFolderPath=dir.FullName+@"\src\main\java";
+    
+    foreach(String folder in subfolders){
+        baseFolderPath+=@"\"+folder;
+        Directory.CreateDirectory(baseFolderPath);
+    }
+    
+    //创建入口Application类
+    CodeTemplate appTemplate = new AppTemplate();　
+
+    appTemplate.SetProperty("PackageName",this.PackageName);
+    //appTemplate.RenderToFile(baseFolderPath+@"\Application.java",true);
+
+    String appText=appTemplate.RenderToString();
+    var utf8WithoutBom = new System.Text.UTF8Encoding(false);
+
+    using (var sink = new StreamWriter(baseFolderPath+@"\Application.java", false, utf8WithoutBom))
+    {
+        sink.WriteLine(appText);
+    }
+    Debug.WriteLine(result);
+   
+
+  
+    
+    return "成功";
+}
+// My methods here.
+public string SampleMethod()
+{
+  return "Method output.";
+}
+</script>

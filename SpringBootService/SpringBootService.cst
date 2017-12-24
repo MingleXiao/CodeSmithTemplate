@@ -1,0 +1,60 @@
+﻿<%-- 
+Name:
+Author: 
+Description: 
+--%>
+<%@ Template Language="C#" Debug="True" TargetLanguage="Text" %>
+<%@ Property Name="ProjectName" Default="SomeValue" Type="System.String" %>
+<%@ Property Name="SampleBooleanProperty" Default="True" Type="System.Boolean" %>
+<%@ Register Template="Controller.cst" Name="ControllerTemplate" %>
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Assembly Name="System.Design" %>
+<%@ Assembly Name="System.DirectoryServices" %>
+<%@ Assembly Name="System.Web" %>
+<%@ Assembly Name="System.Xml" %>
+
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Import NameSpace="System.IO" %>
+<%@ Import NameSpace="System.Text" %>
+<%@ Import NameSpace="System.Text.RegularExpressions" %>
+<%@ Import NameSpace="System.Diagnostics" %>
+<%@ Import NameSpace="System.Xml" %>
+<%@ Import NameSpace="System.Xml.Xsl" %>
+<%@ Import NameSpace="System.Xml.XPath" %> 
+My static content here.
+My dynamic content here: "<%= ProjectName %>"
+Call a script method: <%= SampleMethod() %>
+<% if (SampleBooleanProperty) { %>
+My conditional content here.
+<% } %>
+<script runat="template">
+	private string templateOutputDirectory = String.Empty;
+// My methods here.
+public string SampleMethod()
+{
+    CodeTemplate template = new ControllerTemplate();　
+    template.SetProperty("SampleStringProperty","Test");
+    String result=template.RenderToString();
+    template.RenderToFile("D:test.txt",true);
+    Debug.WriteLine(result);
+   return "2Method output.";
+}
+
+	[Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))] 
+	[Optional, NotChecked]
+	[Category("01. Getting Started - Required")]
+	[Description("The directory to output the results to.")]
+	[DefaultValue("")]
+	public string OutputDirectory 
+	{ 
+		get
+		{
+			return templateOutputDirectory;
+		}
+		set
+		{
+			if (value.EndsWith("\\")) value = value.Substring(0, value.Length - 1);
+			templateOutputDirectory = value;
+		} 
+	}
+</script>

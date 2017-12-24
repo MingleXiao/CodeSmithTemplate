@@ -1,0 +1,18 @@
+﻿<%-- 
+Name:
+Author: 
+Description: 
+--%>
+<%@ Template Language="C#" TargetLanguage="Java" %>
+<%@ Property Name="PackageName" Default="xiaomin.demo" Type="System.String" %>
+package <%=PackageName%>;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args){
+        SpringApplication.run(Application.class,args);
+    }
+}

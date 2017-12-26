@@ -60,6 +60,10 @@ public string CreateProject(){
         Directory.CreateDirectory(dir.FullName+folder);
     }
     
+    //复制配置文件
+    File.Copy("application.properties",dir.FullName+@"\src\main\resources");
+    File.Copy("application-dev.properties",dir.FullName+@"\src\main\resources");
+    
     //创建包目录
     String[] subfolders=this.PackageName.Split(new Char[]{'.'});
     String baseFolderPath=dir.FullName+@"\src\main\java";

@@ -21,6 +21,8 @@ Description:
 
 <%@ Register Template="Pom.cst" Name="PomTemplate" %>
 <%@ Register Template="Application.cst" Name="AppTemplate" %>
+<%@ Register Template="CheckHealthController.cst" Name="CheckHealthTemplate" %>
+<%@ Register Template="SwaggerConfig.cst" Name="SwaggerTemplate" %>
 <%@ Property Name="GroupId" Default="xiaomin.demo" Type="System.String" Description="项目GroupId" %>
 <%@ Property Name="ArtifactId" Default="demo" Type="System.String" Description="项目ArtifactId" %>
 <%@ Property Name="Version" Default="1.0" Type="System.String" Description="项目版本" %>
@@ -28,9 +30,8 @@ Description:
 <%@ Property Name="PackageName" Default="xiaomin.demo" Type="System.String" %>
 <%@ Property Name="OutPut" Default="D:" Type="System.String" %>
 <%= CreateProject()%>
-<%--1.SpringBoot服务
-2.打包--%>
 <script runat="template">
+
 public string CreateProject(){
     string [] folders={
         @"\src",
@@ -81,6 +82,29 @@ public string CreateProject(){
     {
         sink.WriteLine(appText);
     }
+    
+    //创建Swagger配置类
+    CodeTemplate swaggerTemplate = new SwaggerTemplate();　
+
+    swaggerTemplate.SetProperty("PackageName",this.PackageName);
+    appText=swaggerTemplate.RenderToString();
+    
+    using (var sink = new StreamWriter(baseFolderPath+@"\SwaggerConfig.java", false, utf8WithoutBom))
+    {
+        sink.WriteLine(appText);
+    }
+    
+    //创建CheckHealth类
+    CodeTemplate checkHealthTemplate = new CheckHealthTemplate();　
+
+    checkHealthTemplate.SetProperty("PackageName",this.PackageName);
+    appText=checkHealthTemplate.RenderToString();
+    
+    using (var sink = new StreamWriter(baseFolderPath+@"\HealthCheckController.java", false, utf8WithoutBom))
+    {
+        sink.WriteLine(appText);
+    }
+    
     Debug.WriteLine(result);
    
 

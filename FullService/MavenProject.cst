@@ -63,7 +63,7 @@ public string CreateProject(){
     //复制配置文件
     File.Copy("application.properties",dir.FullName+@"\src\main\resources\application.properties",true);
     File.Copy("application-dev.properties",dir.FullName+@"\src\main\resources\application-dev.properties",true);
-    
+    File.Copy("application-dev.properties",dir.FullName+@"\src\main\resources\application-test.properties",true);
     //创建包目录
     String[] subfolders=this.PackageName.Split(new Char[]{'.'});
     String baseFolderPath=dir.FullName+@"\src\main\java";

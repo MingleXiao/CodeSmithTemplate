@@ -1,0 +1,39 @@
+﻿<%-- 
+Name:
+Author: 
+Description: 
+--%>
+<%@ Template Language="C#" TargetLanguage="XML" %>
+<%@ Property Name="ArtifactId" Default="demo" Type="System.String" Description="ArtifactId" %>
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+	<property name="appid" value="<%=ArtifactId%>" />
+	<!-- 输出到文件 -->
+	<appender name="FILE"
+			  class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<file>logs/${appid}/info.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>logs/${appid}/info.log.%d{yyyyMMdd}
+			</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<root>
+		<appender-ref ref="FILE" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+</configuration>

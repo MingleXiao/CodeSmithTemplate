@@ -23,11 +23,17 @@ Description:
 <%@ Register Template="Application.cst" Name="AppTemplate" %>
 <%@ Register Template="CheckHealthController.cst" Name="CheckHealthTemplate" %>
 <%@ Register Template="SwaggerConfig.cst" Name="SwaggerTemplate" %>
+<%@ Register Template="Logback.cst" Name="LogbackTemplate" %>
+<%@ Register Template="GeneratorConfig.cst" Name="GeneratorConfigTemplate" %>
 <%@ Property Name="GroupId" Default="xiaomin.demo" Type="System.String" Description="项目GroupId" %>
 <%@ Property Name="ArtifactId" Default="demo" Type="System.String" Description="项目ArtifactId" %>
 <%@ Property Name="Version" Default="1.0" Type="System.String" Description="项目版本" %>
 <%@ Property Name="SpringBootVersion" Default="1.5.9.RELEASE" Type="System.String" Description="Spring Boot版本" %>
 <%@ Property Name="PackageName" Default="xiaomin.demo" Type="System.String" %>
+<%@ Property Name="MysqlConnectorPath" Default="SomeValue" Type="System.String" %>
+<%@ Property Name="DevDBConnectionURL" Default="jdbc:mysql://127.0.0.1:3306/testdb" Type="System.String" %>
+<%@ Property Name="DevDBUserId" Default="root" Type="System.String" %>
+<%@ Property Name="DevDBPassword" Default="root" Type="System.String" %>
 <%@ Property Name="OutPut" Default="D:" Type="System.String" %>
 <%= CreateProject()%>
 <script runat="template">
@@ -41,6 +47,10 @@ public string CreateProject(){
         @"\src\test",
         @"\src\test\java"
     };
+    
+    var utf8WithoutBom = new System.Text.UTF8Encoding(false);
+    
+    
     //创建目录
     var dir=Directory.CreateDirectory(this.OutPut+this.ArtifactId);
     
@@ -64,6 +74,39 @@ public string CreateProject(){
     File.Copy("application.properties",dir.FullName+@"\src\main\resources\application.properties",true);
     File.Copy("application-dev.properties",dir.FullName+@"\src\main\resources\application-dev.properties",true);
     File.Copy("application-dev.properties",dir.FullName+@"\src\main\resources\application-test.properties",true);
+    
+     //logback.xml
+    LogbackTemplate logbackTemplate = new LogbackTemplate();　
+
+    logbackTemplate.SetProperty("ArtifactId",this.ArtifactId);
+
+
+    String logbackText=logbackTemplate.RenderToString();
+   
+
+    using (var sink = new StreamWriter(dir.FullName+@"\src\main\resources\logback.xml", false, utf8WithoutBom))
+    {
+        sink.WriteLine(logbackText);
+    }
+    
+    //generatorConfig.xml
+    GeneratorConfigTemplate generatorConfigTemplate = new GeneratorConfigTemplate();　
+
+    logbackTemplate.SetProperty("ArtifactId",this.ArtifactId);
+    logbackTemplate.SetProperty("MysqlConnectorPath",this.MysqlConnectorPath);
+    logbackTemplate.SetProperty("DevDBConnectionURL",this.DevDBConnectionURL);
+    logbackTemplate.SetProperty("DevDBUserId",this.DevDBUserId);
+    logbackTemplate.SetProperty("DevDBPassword",this.DevDBPassword);
+
+    String generatorConfigText=generatorConfigTemplate.RenderToString();
+   
+
+    using (var sink = new StreamWriter(dir.FullName+@"\src\main\resources\generatorConfig.xml", false, utf8WithoutBom))
+    {
+        sink.WriteLine(generatorConfigText);
+    }
+    
+    
     //创建包目录
     String[] subfolders=this.PackageName.Split(new Char[]{'.'});
     String baseFolderPath=dir.FullName+@"\src\main\java";
@@ -80,8 +123,7 @@ public string CreateProject(){
     //appTemplate.RenderToFile(baseFolderPath+@"\Application.java",true);
 
     String appText=appTemplate.RenderToString();
-    var utf8WithoutBom = new System.Text.UTF8Encoding(false);
-
+    
     using (var sink = new StreamWriter(baseFolderPath+@"\Application.java", false, utf8WithoutBom))
     {
         sink.WriteLine(appText);

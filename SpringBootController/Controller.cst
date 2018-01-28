@@ -1,0 +1,183 @@
+﻿<%-- 
+Name:
+Author: 
+Description: 
+--%>
+<%@ Template Language="C#" TargetLanguage="Java" %>
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Property Name="Model" Default="SomeValue" Type="System.String" %>
+<%@ Property Name="CamelModel" Default="SomeValue" Type="System.String" %>
+<%@ Property Name="ModelName" Default="True" Type="System.String" %>
+
+<script runat="template">
+
+</script>
+
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import javax.validation.Valid;
+
+
+@Api(value = "<%=ModelName%>服务", description = "<%=ModelName%>服务")
+@RestController
+public class <%=Model%>Controller {
+    @Autowired
+    <%=Model%>Mapper <%=CamelModel%>Mapper;
+    
+    private final static Logger logger = LoggerFactory.getLogger(<%=Model%>Controller.class);
+
+    @ApiOperation(value="上传服务", notes="")
+    @RequestMapping(value="<%=CamelModel.ToLower()%>/upload",method = RequestMethod.POST)
+    public CommonResponse upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        CommonResponse response=new CommonResponse();
+        try {
+            ExcelHelper<<%=Model%>> excelHelper = new ExcelHelper<<%=Model%>>();
+
+            List<<%=Model%>> list = excelHelper.convertExcelToList(<%=Model%>.class, file.getInputStream(), TableHeaders.<%=CamelModel%>HeadersMap);
+
+            if(list.size()>1000){
+                response.setResultCode(ResponseCode.FAILED);
+                response.setResultMsg("导入表格条目不能超过1000");
+                return response;
+            }
+
+            for(<%=Model%> <%=CamelModel%>:list){
+                <%=Model%> si=<%=CamelModel%>Mapper.selectBySalesNo(<%=CamelModel%>.getSalesNo());
+                if(si==null){
+                    <%=CamelModel%>Mapper.insert(<%=CamelModel%>);
+                    String inviteCode=InviteCodeManager.generateSalesInviteCode(<%=CamelModel%>.getId());
+                    <%=Model%> <%=CamelModel%>1=new <%=Model%>();
+                    <%=CamelModel%>1.setId(<%=CamelModel%>.getId());
+                    <%=CamelModel%>1.setInviteCode(inviteCode);
+                    <%=CamelModel%>Mapper.updateByPrimaryKeySelective(<%=CamelModel%>1);
+                }
+                else {
+                    <%=CamelModel%>Mapper.updateByPrimaryKeySelective(<%=CamelModel%>);
+                }
+            }
+
+            response.setResultCode(ResponseCode.SUCCESS);
+        }
+        catch (Exception ex) {
+            response.setResultCode(ResponseCode.FAILED);
+            response.setResultMsg(ex.getMessage());
+        }
+        return response;
+    }
+
+    @ApiOperation(value="增加<%=ModelName%>信息", notes="")
+    @RequestMapping(value="<%=CamelModel.ToLower()%>/insert",method = RequestMethod.POST)
+    public Insert<%=Model%>Response insert(@Valid @RequestBody Insert<%=Model%>Request insert<%=Model%>Request){
+        Insert<%=Model%>Response response=new Insert<%=Model%>Response();
+        try {
+            logger.debug("insert "+insert<%=Model%>Request.toString());
+            
+            <%=Model%> <%=CamelModel%> = new <%=Model%>();
+            BeanUtils.copyProperties(insert<%=Model%>Request, <%=CamelModel%>);
+
+            <%=CamelModel%>Mapper.insertSelective(<%=CamelModel%>);
+
+            <%=Model%>DTO <%=CamelModel%>DTO=new <%=Model%>DTO();
+            BeanUtils.copyProperties(<%=CamelModel%>, <%=CamelModel%>DTO);
+
+            response.setResultCode(ResponseCode.SUCCESS);
+            response.set<%=Model%>DTO(<%=CamelModel%>DTO);
+        }
+        catch (Exception ex) {
+            logger.error("insert 出错",ex);
+            response.setResultCode(ResponseCode.FAILED);
+            response.setResultMsg(ex.getMessage());
+        }
+        return response;
+    }
+
+    @ApiOperation(value="更新<%=ModelName%>信息", notes="")
+    @RequestMapping(value="<%=CamelModel.ToLower()%>/updateByPrimaryKey",method = RequestMethod.POST)
+    public CommonResponse updateByPrimaryKey(@Valid @RequestBody UpdateByPrimaryKeyRequest updateByPrimaryKeyRequest){
+        CommonResponse response=new CommonResponse();
+        try {
+            <%=Model%> <%=CamelModel%> = new <%=Model%>();
+            BeanUtils.copyProperties(updateByPrimaryKeyRequest, <%=CamelModel%>);
+
+            <%=CamelModel%>Mapper.updateByPrimaryKeySelective(<%=CamelModel%>);
+
+            response.setResultCode(ResponseCode.SUCCESS);
+        }
+        catch (Exception ex) {
+            response.setResultCode(ResponseCode.FAILED);
+            response.setResultMsg(ex.getMessage());
+        }
+        return response;
+    }
+
+    @ApiOperation(value="删除<%=ModelName%>信息", notes="")
+    @RequestMapping(value="<%=CamelModel.ToLower()%>/deleteByPrimaryKey",method = RequestMethod.POST)
+    public CommonResponse deleteByPrimaryKey(@Valid @RequestBody PrimaryKeyRequest primaryKeyRequest){
+        CommonResponse response=new CommonResponse();
+        try {
+            <%=CamelModel%>Mapper.deleteByPrimaryKey(primaryKeyRequest.getId());
+
+            response.setResultCode(ResponseCode.SUCCESS);
+        }
+        catch (Exception ex) {
+            response.setResultCode(ResponseCode.FAILED);
+            response.setResultMsg(ex.getMessage());
+        }
+        return response;
+    }
+
+    @ApiOperation(value="根据ID获取<%=ModelName%>信息", notes="")
+    @RequestMapping(value="<%=CamelModel.ToLower()%>/selectByPrimaryKey",method = RequestMethod.POST)
+    public <%=Model%>Response selectByPrimaryKey(@Valid @RequestBody PrimaryKeyRequest primaryKeyRequest){
+        <%=Model%>Response response=new <%=Model%>Response();
+        try {
+            <%=Model%> <%=CamelModel%> = new <%=Model%>();
+
+            <%=CamelModel%>Mapper.selectByPrimaryKey(primaryKeyRequest.getId());
+
+            <%=Model%>DTO <%=CamelModel%>DTO=new <%=Model%>DTO();
+            BeanUtils.copyProperties(<%=CamelModel%>, <%=CamelModel%>DTO);
+
+            response.setResultCode(ResponseCode.SUCCESS);
+            response.setResult(<%=CamelModel%>DTO);
+        }
+        catch (Exception ex) {
+            response.setResultCode(ResponseCode.FAILED);
+            response.setResultMsg(ex.getMessage());
+        }
+        return response;
+    }
+
+    @ApiOperation(value="分页查询<%=ModelName%>信息", notes="")
+    @RequestMapping(value="<%=CamelModel.ToLower()%>/query",method = RequestMethod.POST)
+    public QueryRepsonse query(@Valid @RequestBody QueryRequest queryRequest){
+        QueryRepsonse response=new QueryRepsonse();
+        try {
+//            <%=Model%> <%=CamelModel%> = new <%=Model%>();
+//
+//            <%=CamelModel%>Mapper.selectByPrimaryKey(primaryKeyRequest.getId());
+//
+//            <%=Model%>DTO <%=CamelModel%>DTO=new <%=Model%>DTO();
+//            BeanUtils.copyProperties(<%=CamelModel%>, <%=CamelModel%>DTO);
+//
+//            response.setResultCode(ResponseCode.SUCCESS);
+//            response.setResult(<%=CamelModel%>DTO);
+        }
+        catch (Exception ex) {
+            response.setResultCode(ResponseCode.FAILED);
+            response.setResultMsg(ex.getMessage());
+        }
+        return response;
+    }
+
+}

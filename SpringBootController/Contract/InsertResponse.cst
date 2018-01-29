@@ -1,0 +1,29 @@
+﻿<%-- 
+Name:
+Author: 
+Description: 
+--%>
+<%@ Property Name="ModelName" Type="System.String" Category="DB" Description="请选择名的数据来源" %>
+<%@ Property Name="CamelModel" Default="SomeValue" Type="System.String" %>
+<%@ Property Name="ContractNamespace" Type="System.String" Default="com.houbank." Description="源码输出的模块名称" %>
+
+
+
+package <%=ContractNamespace%>GwParamReplaceService;
+
+import <%=ContractNamespace%>CommonResponse;
+
+/**
+ * Created by HouBank on 2018/1/28.
+ */
+public class Insert<%=ModelName%>Response extends CommonResponse {
+    private <%=ModelName%>DTO <%=CamelModel%>DTO;
+
+    public <%=ModelName%>DTO get<%=ModelName%>DTO() {
+        return <%=CamelModel%>DTO;
+    }
+
+    public void set<%=ModelName%>DTO(<%=ModelName%>DTO paramReplaceDTO) {
+        this.<%=CamelModel%>DTO =<%=CamelModel%>DTO;
+    }
+}

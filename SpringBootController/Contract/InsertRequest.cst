@@ -1,0 +1,68 @@
+﻿<%-- 
+Name:
+Author: 
+Description: 
+--%>
+<%@ CodeTemplate Language="C#" TargetLanguage="Text" ResponseEncoding="UTF-8" Src="" Inherits="" Debug="True" Description="Template description here." %>
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Assembly Name="System.Data" %>
+<%@ Import Namespace="System.Data" %>
+
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+<%@ Import Namespace="System.IO" %>
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+<%@ Assembly Src="../StringHelper.cs" Path="" %>
+
+<%-- 注册 定义的成员变量 --%>
+<%@ Property Name="SourceTable" Type="SchemaExplorer.TableSchema" Category="DB" Description="请选择名的数据来源" %>
+<%@ Property Name="ContractNamespace" Type="System.String" Default="com.houbank." Optional="False" Category="Context" Description="源码输出的模块名称" %>
+
+<%-- 启用 MAP方式 System-CSharpAlias  --%>
+<%@ Map Name="CSharpAlias" Src="System-CSharpAlias" Description="System to C# Type Map" %>
+<%@ Map Name="JavaAlias" Src="System-JavaAlias.csmap" Description="Oracle to Java Type Map" %>
+
+<script runat="template">
+
+
+</script>
+package <%=ContractNamespace%>.<%=StringHelper.ToPascalCase(SourceTable.Name)%>Service;
+
+import javax.validation.constraints.NotNull;
+
+public class Insert<%=StringHelper.ToPascalCase(SourceTable.Name)%>Request  {
+	<%--private static final long serialVersionUID = -3307895529384707655L; --%>
+	
+	<%-- 成员变量 --%>
+    <% foreach (ColumnSchema column in this.SourceTable.Columns) 
+    { 
+    %>
+        <%if(column.AllowDBNull==false && column.Name!="id"){%>
+        @NotNull(message = "<%= StringHelper.ToCamelCase(column.Name) %> 不能为空")
+        <%}%>
+    	private <%= JavaAlias[column.SystemType.FullName]%> <%= StringHelper.ToCamelCase(column.Name) %>;
+        
+        <% 
+        } // end foreach (ColumnSchema column in this.SourceTable.Columns) 
+        %>
+
+    	<% foreach (ColumnSchema column in this.SourceTable.Columns) 
+        { 
+        %>
+    	/**
+    	 * @return 返回 <%= StringUtil.ToCamelCase(column.Name)%>。
+    	 */
+    	public <%= JavaAlias[column.SystemType.FullName]%> <%= StringHelper.getFunctionMemberVariableName(column.Name)%>() {
+    		return <%= StringUtil.ToCamelCase(column.Name)%>;
+    	}
+
+    	/**
+    	 * @param <%= column.Name%> 要设置的 <%= column.Name%>。
+    	 */
+    	public void <%= StringHelper.setFunctionMemberVariableName(column.Name)%>(<%= JavaAlias[column.SystemType.FullName]%> <%= column.Name%>) {
+    		this.<%= StringHelper.ToCamelCase(column.Name)%> = <%= column.Name%>;
+    	}
+    <% 
+    } 
+    %>
+}
